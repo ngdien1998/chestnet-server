@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index</title>
+    <link rel="stylesheet" href="css/Chart.min.css" />
+</head>
+<body>
+    <input type="file" id="image" />
+    <canvas id="chart-display"></canvas>
+    <script src="js/jquery-3.5.1.min.js"></script>
+    <script src="js/Chart.min.js"></script>
+    <script>
+        let reader = new FileReader();
+        reader.onload = e => {
+            let dataUrl = reader.result;
+            let reqData = { image: dataUrl };
+
+            $.post('http://127.0.0.1:5000/classify', JSON.stringify(reqData), resp => {
+                if (!resp.data.success) {
+                    console.log('Fail to predict image');
+                    return;
+                }
+
+                let data = [], labels = [];
+                for (prop in resp.data.result) {
+                    labels.push(prop);
+                    data.push(resp.data.result[prop] * 100);
+                    console.log(resp.data.result[prop]);
+                }
+
+                new Chart('chart-display', {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            label: "Kết quả dự đoán",
+                            data: data
+                        }],
+                        labels: labels
+                    }
+                });
+            });
+        };
+
+        $('#image').change(e => {
+            reader.readAsDataURL(e.target.files[0]);
+        });
+    </script>
+</body>
+</html>

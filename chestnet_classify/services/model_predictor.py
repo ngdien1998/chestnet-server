@@ -52,4 +52,4 @@ class ModelPredictor:
     def make_predict(self, image_path, target_size=(224, 224)):
         processed_image = ModelPredictor.preprocess_image(image_path, target_size)
         predictions = self.model.predict(processed_image)[0]
-        return { settings['labels'][i] : prediction.item() for i, prediction in enumerate(predictions) }
+        return { settings['labels'][i] : round(prediction.item(), 2) for i, prediction in enumerate(predictions) }
