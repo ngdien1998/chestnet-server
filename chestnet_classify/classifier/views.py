@@ -19,16 +19,12 @@ class ClassifierView(MethodView):
         encoded_image = message['image']
 
         image_path = save_image(encoded_image)
+        result = ModelPredictor.single().make_predict(image_path)
 
-        densenet121 = settings['models']['densenet121']['name']
-        weights = settings['models']['densenet121']['weights']
-        print(densenet121, weights)
-
-        result = ModelPredictor.get(model_name=densenet121, model_weight=weights).make_predict(image_path)
         return jsonify({
             'data': {
                 'success': True,
-                'result': result
+                'result': { 'prediction': result }
             }
         })
 
