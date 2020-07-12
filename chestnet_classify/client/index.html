@@ -5,48 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Index</title>
     <link rel="stylesheet" href="css/Chart.min.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <script src="js/bootstrap.min.js"></script>
+    <style>
+      .chart-container {
+        position: relative;
+        height: 80%; 
+        width: 100%;
+      }
+
+      .resizable {
+        margin: 0 auto;
+        overflow: hidden;
+        width: 100%;
+        height: 444px;
+      }
+
+      .title {
+        text-align: center;
+      }
+    </style>
   </head>
   <body>
-    <input type="file" id="image" />
-    <canvas id="chart-display"></canvas>
+    <div class="container">
+      <div class="row">
+        <input type="file" id="image" />
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="resizable">
+            <div class="title">
+              <h2>VGG16</h2>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-display-vgg"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="resizable">
+            <div class="title">
+              <h2>MobileNet</h2>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-display-mobilenet"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="resizable">
+            <div class="title">
+              <h2>DenseNet</h2>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-display-densenet"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="js/jquery-3.5.1.min.js"></script>
     <script src="js/Chart.min.js"></script>
     <script>
       let reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = e => {
         let dataUrl = reader.result;
         let reqData = { image: dataUrl };
-        console.log(reqData);
 
-        $.post(
-          "http://127.0.0.1:5000/classify",
-          JSON.stringify(reqData),
-          (resp) => {
+        $.post("http://127.0.0.1:5000/classify", JSON.stringify(reqData), resp => {
             if (!resp.data.success) {
               console.log("Fail to predict image");
               return;
             }
 
-            let data = [],
-              labels = [];
-            for (prop in resp.data.result) {
-              labels.push(prop);
-              data.push(resp.data.result[prop] * 100);
-              console.log(resp.data.result[prop]);
-            }
+            let getResult = pred => {
+              let result = { labels: [], data: [] };
+              for (prop in pred) {
+                result.labels.push(prop);
+                result.data.push(pred[prop] * 100);
+              }
 
-            new Chart("chart-display", {
-              type: "doughnut",
-              data: {
-                datasets: [
-                  {
-                    label: "Kết quả dự đoán",
-                    data: data,
-                  },
-                ],
-                labels: labels,
-              },
-            });
+              return result;
+            };
+
+            let pred = resp.data.result.prediction;
+            let predVgg16 = getResult(pred['predictions_vgg16']);
+            let predDensenet121 = getResult(pred['predictions_densenet121']);
+            let predMobilenet = getResult(pred['predictions_mobilenet']);
+
+            let backgroundColor = [
+              'rgb(54, 162, 235)',
+              'rgb(75, 192, 192)',
+              'rgb(201, 203, 207)',
+              'rgb(255, 159, 64)',
+              'rgb(153, 102, 255)',
+              'rgb(255, 99, 132)',
+              'rgb(255, 205, 86)',
+              'rgb(0, 131, 143)',
+              'rgb(130, 119, 23)',
+              'rgb(211, 47, 47)',
+              'rgb(27, 94, 32)',
+              'rgb(255, 235, 59)',
+              'rgb(191, 54, 12)',
+              'rgb(48, 63, 159)',
+            ];
+
+            let drawChart = (pred, context, chartName) => {
+              new Chart(context, {
+                type: 'doughnut',
+                data: {
+                  datasets: [
+                    {
+                      label: 'Kết quả dự đoán ' + chartName,
+                      data: pred.data,
+                      backgroundColor: backgroundColor
+                    },
+                  ],
+                  labels: pred.labels,
+                },
+                options: {
+                  maintainAspectRatio: false,
+                  responsive: true,
+                  legend: {
+                    display: false
+                  }
+                }
+              });
+            };
+
+            drawChart(predVgg16, 'chart-display-vgg', 'VGG16');
+            drawChart(predMobilenet, 'chart-display-mobilenet', 'Mobilenet');
+            drawChart(predDensenet121, 'chart-display-densenet', 'Densenet');
           }
         );
       };
