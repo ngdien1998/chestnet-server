@@ -24,7 +24,7 @@ class ClassifierView(MethodView):
         return jsonify({
             'data': {
                 'success': True,
-                'result': { 'prediction': result }
+                'prediction': result
             }
         })
 

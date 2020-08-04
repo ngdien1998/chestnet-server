@@ -1,0 +1,40 @@
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+.main {
+    padding-top: 0.8rem;
+}
+
+#img-show-crop {
+    margin-top: 0.8rem;
+}
+
+.xray {
+    height: 300px;
+}
+
+.chart-container {
+    position: relative; 
+    height: 90vh;
+    width: 100%;
+}
+
+.table td, .table th {
+    padding: 4px;
+    text-align: center;
+}
+
+.pred-img img {
+    width: 100%;
+}
+
+.pred-img p {
+    text-align: center;
+    font-size: 24px;
+}
