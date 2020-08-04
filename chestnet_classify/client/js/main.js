@@ -31,8 +31,10 @@ const chartOptions = {
 };
 
 function displayImages(labels, heatmaps, container) {
+    let target = $('#' + container + ' div.row');
+    target.html('');
     for (let i = 0; i < labels.length; i++) {
-        $('#' + container + ' div.row').append(`
+        target.append(`
             <div class="pred-img col-3">
                 <img src="${heatmaps[i]}" />
                 <p>${labels[i]}</p>
@@ -114,8 +116,10 @@ $('#analyse').on("click", () => {
             });
         }
 
+        let thresholdContainer = $('#thresholds').find('tbody');
+        thresholdContainer.html('');
         for (let i = 0; i < labels.length; i++) {
-            $('#thresholds').append(`
+            thresholdContainer.append(`
                 <tr>
                     <th>${labels[i]}</th>
                     <td class="table-danger">${thDensenet121[i]}</td>
