@@ -68,12 +68,14 @@ class ModelPredictor:
 
     @staticmethod
     def preprocess_image(image_path, target_size=(224, 224)):
-        img = Image.open(image_path)
-        img = img.convert('RGB')
-        img = np.asarray(img) / 255.
-        img = resize(img, target_size)
-        img = np.expand_dims(img, axis=0)
-        
+        img = cv2.imread(image_path)
+        img = cv2.resize(img, target_size)
+        if img.shape[2] == 1:
+            img = np.dstack([img, img, img])
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = img.astype(np.float32) / 255.0
+        img = img.reshape(1, img.shape[0], img.shape[1], img.shape[2])
+
         return img
 
     @staticmethod
@@ -133,7 +135,7 @@ class ModelPredictor:
 
         pred_label_densenet121, pred_index_densenet121 = ModelPredictor.predict_labels(settings['labels'], predictions_densenet121, settings['models']['densenet121']['thresholds'])
         pred_label_mobilenet, pred_index_mobilenet = ModelPredictor.predict_labels(settings['labels'], predictions_mobilenet, settings['models']['mobilenet']['thresholds'])
-        pred_label_vgg16, pred_index_vgg16 = ModelPredictor.predict_labels(settings['labels'], predictions_vgg16, settings['models']['vgg16']['thresholds'])
+        # pred_label_vgg16, pred_index_vgg16 = ModelPredictor.predict_labels(settings['labels'], predictions_vgg16, settings['models']['vgg16']['thresholds'])
 
         heatmap_densenet121 = ModelPredictor.calculate_heatmap(densenet121_model, pred_index_densenet121, pred_label_densenet121, image_path)
         heatmap_mobilenet = ModelPredictor.calculate_heatmap(mobilenet_model, pred_index_mobilenet, pred_label_mobilenet, image_path)
