@@ -30,12 +30,12 @@ class ModelPredictor:
         input_shape=(224, 224, 3)
 
         # Densenet121
-        img_input_dennsenet121 = Input(shape=input_shape)
-        base_model_dennsenet121 = DenseNet121(include_top=False, input_tensor=img_input_dennsenet121, input_shape=input_shape, pooling='avg', weights=None)
+        # img_input_dennsenet121 = Input(shape=input_shape)
+        # base_model_dennsenet121 = DenseNet121(include_top=False, input_tensor=img_input_dennsenet121, input_shape=input_shape, pooling='avg', weights=None)
 
-        predictions_dennsenet121 = Dense(15, activation='sigmoid', name='predictions')(base_model_dennsenet121.output)
-        model_dennsenet121 = Model(inputs=img_input_dennsenet121, outputs=predictions_dennsenet121)
-        model_dennsenet121.load_weights(settings['models']['densenet121']['weights'])
+        # predictions_dennsenet121 = Dense(15, activation='sigmoid', name='predictions')(base_model_dennsenet121.output)
+        # model_dennsenet121 = Model(inputs=img_input_dennsenet121, outputs=predictions_dennsenet121)
+        # model_dennsenet121.load_weights(settings['models']['densenet121']['weights'])
 
         # Mobilenet
         img_input_mobilenet = Input(shape=input_shape)
@@ -46,16 +46,16 @@ class ModelPredictor:
         model_mobilenet.load_weights(settings['models']['mobilenet']['weights'])
 
         # VGG16
-        img_input_vgg16 = Input(shape=input_shape)
-        base_model_vgg16 = VGG16(include_top=False, input_tensor=img_input_vgg16, input_shape=input_shape, pooling="avg", weights=None)
-        predictions_vgg16 = Dense(15, activation="sigmoid", name="predictions")(base_model_vgg16.output)
-        model_vgg16 = Model(inputs=img_input_vgg16, outputs=predictions_vgg16)
-        model_vgg16.load_weights(settings['models']['vgg16']['weights'])
+        # img_input_vgg16 = Input(shape=input_shape)
+        # base_model_vgg16 = VGG16(include_top=False, input_tensor=img_input_vgg16, input_shape=input_shape, pooling="avg", weights=None)
+        # predictions_vgg16 = Dense(15, activation="sigmoid", name="predictions")(base_model_vgg16.output)
+        # model_vgg16 = Model(inputs=img_input_vgg16, outputs=predictions_vgg16)
+        # model_vgg16.load_weights(settings['models']['vgg16']['weights'])
 
         return {
-            settings['models']['densenet121']['name']: model_dennsenet121,
+            # settings['models']['densenet121']['name']: model_dennsenet121,
             settings['models']['mobilenet']['name']: model_mobilenet,
-            settings['models']['vgg16']['name']: model_vgg16,
+            # settings['models']['vgg16']['name']: model_vgg16,
         }
 
     @staticmethod
@@ -120,46 +120,46 @@ class ModelPredictor:
     def make_predict(self, image_path, target_size=(224, 224)):
         processed_image = ModelPredictor.preprocess_image(image_path, target_size)
         
-        densenet121_model = self.models[settings['models']['densenet121']['name']]
+        # densenet121_model = self.models[settings['models']['densenet121']['name']]
         mobilenet_model = self.models[settings['models']['mobilenet']['name']]
-        vgg16_model = self.models[settings['models']['vgg16']['name']]
+        # vgg16_model = self.models[settings['models']['vgg16']['name']]
 
-        predictions_densenet121 = densenet121_model.predict(processed_image)[0]
+        # predictions_densenet121 = densenet121_model.predict(processed_image)[0]
         predictions_mobilenet = mobilenet_model.predict(processed_image)[0]
-        predictions_vgg16 = vgg16_model.predict(processed_image)[0]
+        # predictions_vgg16 = vgg16_model.predict(processed_image)[0]
         
         # w_a, w_b, w_c = settings['models']['densenet121']['auroc'], settings['models']['mobilenet']['auroc'], settings['models']['vgg16']['auroc']
         # cp = lambda a, b, c: round((a * w_a + b * w_b + c * w_c) / (w_a + w_b + w_c) * 100, 2)
         # pred_computed = list(zip(predictions_densenet121, predictions_mobilenet, predictions_vgg16))
         # pred_computed = [cp(x[0], x[1], x[2]) for x in pred_computed]
 
-        pred_label_densenet121, pred_index_densenet121 = ModelPredictor.predict_labels(settings['labels'], predictions_densenet121, settings['models']['densenet121']['thresholds'])
+        # pred_label_densenet121, pred_index_densenet121 = ModelPredictor.predict_labels(settings['labels'], predictions_densenet121, settings['models']['densenet121']['thresholds'])
         pred_label_mobilenet, pred_index_mobilenet = ModelPredictor.predict_labels(settings['labels'], predictions_mobilenet, settings['models']['mobilenet']['thresholds'])
         # pred_label_vgg16, pred_index_vgg16 = ModelPredictor.predict_labels(settings['labels'], predictions_vgg16, settings['models']['vgg16']['thresholds'])
 
-        heatmap_densenet121 = ModelPredictor.calculate_heatmap(densenet121_model, pred_index_densenet121, pred_label_densenet121, image_path)
+        # heatmap_densenet121 = ModelPredictor.calculate_heatmap(densenet121_model, pred_index_densenet121, pred_label_densenet121, image_path)
         heatmap_mobilenet = ModelPredictor.calculate_heatmap(mobilenet_model, pred_index_mobilenet, pred_label_mobilenet, image_path)
         #heatmap_vgg16 = ModelPredictor.calculate_heatmap(vgg16_model, pred_index_vgg16, pred_label_vgg16, image_path)
 
         r = lambda arr: [round(x * 100, 2) for x in arr]
 
         return {
-            'predictions_densenet121': { settings['labels'][i] : round(prediction.item() * 100, 2) for i, prediction in enumerate(predictions_densenet121) },
+            # 'predictions_densenet121': { settings['labels'][i] : round(prediction.item() * 100, 2) for i, prediction in enumerate(predictions_densenet121) },
             'predictions_mobilenet': { settings['labels'][i] : round(prediction.item() * 100, 2) for i, prediction in enumerate(predictions_mobilenet) },
-            'predictions_vgg16': { settings['labels'][i] : round(prediction.item() * 100, 2) for i, prediction in enumerate(predictions_vgg16) },
+            # 'predictions_vgg16': { settings['labels'][i] : round(prediction.item() * 100, 2) for i, prediction in enumerate(predictions_vgg16) },
             #'predictions_compute': { settings['labels'][i] : prediction for i, prediction in enumerate(pred_computed) },
             'thresholds': {
-                'densenet121': r(settings['models']['densenet121']['thresholds']),
+                # 'densenet121': r(settings['models']['densenet121']['thresholds']),
                 'mobilenet': r(settings['models']['mobilenet']['thresholds']),
-                'vgg16': r(settings['models']['vgg16']['thresholds'])
+                # 'vgg16': r(settings['models']['vgg16']['thresholds'])
             },
             'predictions_labels': {
-                'densenet121': pred_label_densenet121,
+                # 'densenet121': pred_label_densenet121,
                 'mobilenet': pred_label_mobilenet
                 #'vgg16': pred_label_vgg16
             },
             'heatmaps': {
-                'densenet121': heatmap_densenet121,
+                # 'densenet121': heatmap_densenet121,
                 'mobilenet': heatmap_mobilenet
                 #'vgg16': heatmap_vgg16
             }
